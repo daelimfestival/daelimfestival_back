@@ -316,6 +316,16 @@ function get_url($url)
 // ==================================================================================
 // 날짜 관련 함수
 // ==================================================================================
+function viewYMDHIS($times)
+{
+    $time_array = explode(" ", $times);
+
+    $time_day_array[0] = viewYMD($time_array[0]);
+    $time_day_array[1] = viewHIS($time_array[1]);
+
+    return $time_day_array;
+}
+
 function viewYMD($times)
 {
     $viewtime = substr($times, 0, 10);
