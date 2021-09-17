@@ -461,3 +461,16 @@ function get_uniqid_str($length, $str = "")
 
     return str_shuffle($string_generated);
 }
+
+// ==================================================================================
+// embed용 유투브 링크 함수
+// ==================================================================================
+function embed_youtube($link)
+{
+    $youtube_link = $link;
+    $youtube_user = strstr($youtube_link, 'v=');
+    $youtube_final = str_replace("v=", "", $youtube_user);
+    $youtube_result = mb_substr($youtube_final, 0, 11, 'utf-8');
+
+    return "https://www.youtube.com/v/$youtube_result?version=3&autoplay=1";
+}
