@@ -46,7 +46,7 @@ define('DAELIM_SPACE', 32); // 공백
 define('DAELIM_SPECIAL', 64); // 특수문자
 
 // 퍼미션
-define('DAELIM_DIR_PERMISSION', 0777); // 디렉토리 생성시 퍼미션
+define('DAELIM_DIR_PERMISSION', 0707); // 디렉토리 생성시 퍼미션
 define('DAELIM_FILE_PERMISSION', 0644); // 파일 생성시 퍼미션
 
 // ==================================================================================
