@@ -30,13 +30,25 @@ function getDeviceData($keyname, $keyval)
         }
     } else if ($keyname == "member_idx") {
         $row_tmp = sql_fetch("SELECT * FROM DF_device_log WHERE $keyname = '{$keyval}'");
+
+        if (!$row_tmp['idx']) {
+            $sql = "INSERT INTO DF_device_log SET
+            sort = '" . device . "',
+            member_idx = '{$keyval}',
+            login_date = '" . DAELIM_TIME_YMD . "', 
+            login_time = '" . DAELIM_TIME_HIS . "';";
+
+            sql_query($sql, true);
+
+            $row_tmp = sql_fetch("SELECT * FROM DF_device_log WHERE $keyname = '{$keyval}'");
+        }
     }
 
     return $row_tmp;
 }
 
 // ==================================================================================
-// 디바이스 접속 유효성 검사(JWT인증방식), 접속 api 저장
+// 디바이스 접속 유효성 검사, 접속 api 저장
 // ==================================================================================
 function recordAccess($current_url, $deviceinfo, $parameter = array())
 {
@@ -47,16 +59,17 @@ function recordAccess($current_url, $deviceinfo, $parameter = array())
     $base_filename = basename($_SERVER['PHP_SELF']);
     $parameter_json = json_encode($parameter, JSON_UNESCAPED_UNICODE);
 
+    $token = $deviceinfo['token'];
     $timeaccess = time();
 
     $sql = "INSERT INTO DF_device_access SET 
-    token = '{$deviceinfo['token']}', 
-    timeaccess = '{$timeaccess}', 
-    requestApi = '{$base_filename}', 
-    currentUrl = '{$current_url}', 
-    parameter = '{$parameter_json}', 
-    ip = '" . ip . "', 
-    sort = '" . device . "';";
+    sort = '" . device . "',
+    token = '{$token}',
+    currenturl = '{$current_url}',
+    request_page = '{$base_filename}',
+    parameter = '{$parameter_json}',
+    timeaccess = '{$timeaccess}',
+    ip = '" . ip . "';";
 
     sql_query($sql, true);
 
@@ -142,75 +155,6 @@ function get_file_name($url)
     $file_array = explode("/", $url);
     return $file_array[5];
 }
-
-// // ==================================================================================
-// // 소켓 비동기 처리를 위한 장치
-// // ==================================================================================
-// function go_push_socket($url)
-// {
-//     $method = 'POST';
-
-//     $info = parse_url($url);
-//     $req = '';
-//     $data = '';
-//     $line = '';
-//     $agent = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0)';
-//     $linebreak = "\r\n";
-//     $headPassed = false;
-//     $referer = "";
-
-//     switch ($info['scheme'] = strtoupper($info['scheme'])) {
-//         case 'HTTP':
-//             $info['port'] = 80;
-//             break;
-
-//         case 'HTTPS':
-//             $info['ssl'] = 'ssl://';
-//             $info['port'] = 443;
-//             break;
-
-//         default:
-//             return false;
-//     }
-
-//     if (!$info['path']) {
-//         $info['path'] = '/';
-//     }
-
-//     switch ($method = strtoupper($method)) {
-//         case 'GET':
-//             if ($info['query']) {
-//                 $info['path'] .= '?' . $info['query'];
-//             }
-
-//             $req .= 'GET ' . $info['path'] . ' HTTP/1.1' . $linebreak;
-//             $req .= 'Host: ' . $info['host'] . $linebreak;
-//             $req .= 'User-Agent: ' . $agent . $linebreak;
-//             $req .= 'Referer: ' . $referer . $linebreak;
-//             $req .= 'Connection: Close' . $linebreak . $linebreak;
-//             break;
-
-//         case 'POST':
-//             $req .= 'POST ' . $info['path'] . ' HTTP/1.1' . $linebreak;
-//             $req .= 'Host: ' . $info['host'] . $linebreak;
-//             $req .= 'User-Agent: ' . $agent . $linebreak;
-//             $req .= 'Referer: ' . $referer . $linebreak;
-//             $req .= 'Content-Type: application/x-www-form-urlencoded' . $linebreak;
-//             $req .= 'Content-Length: ' . strlen($info['query']) . $linebreak;
-//             $req .= 'Connection: Close' . $linebreak . $linebreak;
-//             $req .= $info['query'];
-//             break;
-//     }
-
-//     $fsock = @fsockopen($info['ssl'] . $info['host'], $info['port'], $errno, $errstr);
-//     echo json_encode($fsock);
-//     if ($fsock) {
-//         fwrite($fsock, $req);
-//         sleep(1);
-//         fclose($fsock);
-//     } else {
-//     }
-// }
 
 // ==================================================================================
 // 이미지 관련 함수
@@ -473,4 +417,17 @@ function embed_youtube($link)
     $youtube_result = mb_substr($youtube_final, 0, 11, 'utf-8');
 
     return "https://www.youtube.com/v/$youtube_result?version=3&autoplay=1";
+}
+
+// ==================================================================================
+// 정상 토큰 확인 함수
+// ==================================================================================
+function is_token($token) {
+    $chk = false;
+
+    if(text_startsWith($token, "DF")) {
+        $chk = true;
+    }
+
+    return $chk;
 }

@@ -15,7 +15,12 @@ if (is_token($token) && $log) {
 
     recordAccess($current_url, $log, $parameter);
 
-    sql_query("UPDATE DF_device_log SET sync = 'N', token = 'N' WHERE token = '{$token}';");
+    sql_query("UPDATE DF_device_log SET
+    sync = 'N',
+    token = 'N',
+    login_date = '" . DAELIM_TIME_YMD . "', 
+    login_time = '" . DAELIM_TIME_HIS . "' 
+    WHERE token = '{$token}';");
 
     quick_return("ok", "로그아웃 되었습니다.");
 } else {

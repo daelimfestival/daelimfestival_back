@@ -55,6 +55,12 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
 
     if ($log) {
         if ($log['sync'] == 'Y' && $log['token'] != 'N') {
+            sql_query("UPDATE DF_device_log SET 
+            sort = '" . device . "', 
+            login_date = '" . DAELIM_TIME_YMD . "', 
+            login_time = '" . DAELIM_TIME_HIS . "' 
+            WHERE member_idx = '{$log['member_idx']}' AND token = '{$log['token']}';");
+
             $response = "error";
             $msg = "이미 로그인하셨습니다.";
             $sync = $log['sync'];
@@ -73,7 +79,7 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
             token = '{$token}', 
             login_date = '" . DAELIM_TIME_YMD . "', 
             login_time = '" . DAELIM_TIME_HIS . "' 
-            WHERE member_idx = '{$log['member_idx']}' AND token = '{$log['token']}'");
+            WHERE member_idx = '{$log['member_idx']}' AND token = '{$log['token']}';");
 
             $log['token'] = $token;
 
