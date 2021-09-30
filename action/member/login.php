@@ -86,9 +86,9 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
             $response = "ok";
             $msg = "success";
             $sync = 'Y';
-        }
 
-        recordAccess($current_url, $log, $parameter);
+            recordAccess($current_url, $log, $parameter);
+        }
     }
 
     $result = array(
