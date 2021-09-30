@@ -26,7 +26,7 @@ if (is_token($token)) {
 
         quick_return("ok", "로그아웃 되었습니다.");
     } else {
-        quick_return("error", "정상적인 접근이 아닙니다.");
+        quick_return("error", "이미 로그아웃 되어있습니다.");
     }
 } else {
     quick_return("error", "정상적인 접근이 아닙니다.");
