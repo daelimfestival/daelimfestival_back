@@ -16,9 +16,9 @@ if (isset($daelim_path['path'])) {
     define('DAELIMFESTIVAL', '');
 }
 
-define('DAELIM_DOMAIN', 'http://3.37.158.173/');
-define('DAELIM_HTTP_DOMAIN', 'http://3.37.158.173/');
-define('DAELIM_FILE_DOMAIN', 'http://3.37.158.173/data/');
+define('DAELIM_DOMAIN', $daelim_path['url'] . '/');
+define('DAELIM_HTTP_DOMAIN', $daelim_path['url'] . '/');
+define('DAELIM_FILE_DOMAIN', $daelim_path['url'] . '/' . 'data/');
 
 define('DAELIM_DATA_DIR', 'data');
 define('DAELIM_EXTEND_DIR', 'extend');
