@@ -31,7 +31,7 @@ $_POST = $reactJSData;
 
 
 /* API 액션 페이지 헤더 부분 */
-$response = "error";
+$response = "fail";
 $msg = "Connection Fail";
 
 $json = json_decode(urldecode(base64_decode($_POST['json'])));

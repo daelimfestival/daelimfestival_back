@@ -9,9 +9,6 @@ $current_url = clean_xss_tags(htmlspecialchars(trim($json->current_url)), 1);
 $member_idx = clean_xss_tags(htmlspecialchars(trim($json->id)), 1);
 $password = clean_xss_tags(htmlspecialchars(trim($json->password)), 1);
 
-$response = "fail";
-$msg = "Connection Fail";
-$sync = "N";
 $token = "N";
 
 if ($msg = empty_mb_id($member_idx)) {
@@ -63,7 +60,6 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
 
             $response = "ok";
             $msg = "이미 로그인하셨습니다.";
-            $sync = $log['sync'];
             $token = $log['token'];
         } else {
             if (!$member['member_idx'] || !check_password($password, $member['password'])) {
@@ -85,7 +81,6 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
 
             $response = "ok";
             $msg = "success";
-            $sync = 'Y';
 
             recordAccess($current_url, $log, $parameter);
         }
@@ -98,7 +93,6 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
 $result = array(
     "response" => $response,
     "msg" => $msg,
-    "sync" => $sync,
     "token" => $token
 );
 

@@ -24,10 +24,20 @@ if (is_token($token)) {
         login_time = '" . DAELIM_TIME_HIS . "' 
         WHERE token = '{$token}';");
 
-        quick_return("ok", "로그아웃 되었습니다.");
+        $response = "ok";
+        $msg = "로그아웃 되었습니다..";
     } else {
-        quick_return("error", "이미 로그아웃 되어있습니다.");
+        $response = "error";
+        $msg = "이미 로그아웃 되어있습니다.";
     }
 } else {
-    quick_return("error", "정상적인 접근이 아닙니다.");
+    $response = "error";
+    $msg = "정상적인 접근이 아닙니다.";
 }
+
+$result = array(
+    "response" => $response,
+    "msg" => $msg
+);
+
+json_return($result);
