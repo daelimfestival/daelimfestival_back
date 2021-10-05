@@ -90,13 +90,16 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
             recordAccess($current_url, $log, $parameter);
         }
     }
-
-    $result = array(
-        "response" => $response,
-        "msg" => $msg,
-        "sync" => $sync,
-        "token" => $token
-    );
+} else {
+    $response = "error";
+    $msg = "아이디 또는 비밀번호가 맞지 않습니다.";
 }
+
+$result = array(
+    "response" => $response,
+    "msg" => $msg,
+    "sync" => $sync,
+    "token" => $token
+);
 
 json_return($result);
