@@ -61,7 +61,7 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
             login_time = '" . DAELIM_TIME_HIS . "' 
             WHERE member_idx = '{$log['member_idx']}' AND token = '{$log['token']}';");
 
-            $response = "error";
+            $response = "ok";
             $msg = "이미 로그인하셨습니다.";
             $sync = $log['sync'];
             $token = $log['token'];
