@@ -25,7 +25,7 @@ if (is_token($token)) {
         WHERE token = '{$token}';");
 
         $response = "ok";
-        $msg = "로그아웃 되었습니다..";
+        $msg = "로그아웃 되었습니다.";
     } else {
         $response = "error";
         $msg = "이미 로그아웃 되어있습니다.";
