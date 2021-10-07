@@ -28,7 +28,7 @@ function getDeviceData($keyname, $keyval)
 
             $row_tmp = sql_fetch("SELECT * FROM DF_device_log WHERE $keyname = '{$keyval}'");
         }
-    } else if ($keyname == "member_idx") {
+    } else {
         $row_tmp = sql_fetch("SELECT * FROM DF_device_log WHERE $keyname = '{$keyval}'");
 
         if (!$row_tmp['idx']) {

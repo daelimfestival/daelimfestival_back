@@ -180,7 +180,10 @@ if (file_exists($dbconfig_file)) {
     $daelim_festival['connect_db_pdo'] = $connect_db_pdo;
 
     sql_set_charset('utf8mb4', $connect_db);
-    if (defined('DAELIM_MYSQL_SET_MODE') && DAELIM_SET_MODE) sql_query("SET SESSION sql_mode = ''");
+
+    if (defined('DAELIM_MYSQL_SET_MODE') && DAELIM_SET_MODE) {
+        sql_query("SET SESSION sql_mode = ''");
+    }
 } else {
 ?>
     <!doctype html>
@@ -260,6 +263,8 @@ unset($extend_file);
 $is_admin = false;
 $baseConfig = getConfig();
 
+global $idx_sort;
+
 if ($_SESSION['df_admin_idx']) { // 로그인중이라면
     $chkAdmin = checkAdmin($_SESSION['df_admin_idx']);
     if ($chkAdmin['is_admin'] == 'Y') {
@@ -270,6 +275,17 @@ if ($_SESSION['df_admin_idx']) { // 로그인중이라면
 // ==================================================================================
 // 접속자의 ip주소를 리턴
 // ==================================================================================
+function get_real_client_ip()
+{
+    $real_ip = $_SERVER['REMOTE_ADDR'];
+
+    if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $real_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
+
+    return preg_replace('/[^0-9.]/', '', $real_ip);
+}
+
 function get_client_ip()
 {
     if (getenv('HTTP_CLIENT_IP')) {

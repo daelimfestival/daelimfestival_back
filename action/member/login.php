@@ -12,23 +12,23 @@ $password = clean_xss_tags(htmlspecialchars(trim($json->password)), 1);
 $token = "N";
 
 if ($msg = empty_mb_id($member_idx)) {
-    return quick_return("error", $msg);
+    quick_return("error", $msg);
 }
 
 if ($msg = valid_mb_id2($member_idx)) {
-    return quick_return("error", $msg);
+    quick_return("error", $msg);
 }
 
 if ($msg = empty_mb_pass($password)) {
-    return quick_return("error", $msg);
+    quick_return("error", $msg);
 }
 
 if ($msg = valid_mb_pass($password)) {
-    return quick_return("error", $msg);
+    quick_return("error", $msg);
 }
 
 if ($msg = count_mb_pass($password)) {
-    return quick_return("error", $msg);
+    quick_return("error", $msg);
 }
 
 $parameter = array(
@@ -43,7 +43,9 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
     $member = getMember($member_idx);
 
     if (!$member) {
-        sql_query("INSERT INTO DF_member SET member_idx = '{$member_idx}', password = '" . get_encrypt_string($password) . "'");
+        sql_query("INSERT INTO DF_member SET 
+        member_idx = '{$member_idx}', 
+        password = '" . get_encrypt_string($password) . "';");
 
         $member = getMember($member_idx);
     }
@@ -51,7 +53,9 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
     $log = getDeviceData("member_idx", $member_idx);
 
     if ($log) {
+        // 이미 로그인 한 상태
         if ($log['sync'] == 'Y' && $log['token'] != 'N') {
+            // update login log
             sql_query("UPDATE DF_device_log SET 
             sort = '" . device . "', 
             login_date = '" . DAELIM_TIME_YMD . "', 
@@ -62,13 +66,10 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
             $msg = "이미 로그인하셨습니다.";
             $token = $log['token'];
         } else {
-            if (!$member['member_idx'] || !check_password($password, $member['password'])) {
-                return quick_return("error", "아이디 또는 비밀번호가 틀립니다.");
-            }
-
-            // update login log
+            // 처음 로그인하거나 로그아웃 상태일 경우
             $token = "DF" . get_uniqid_str(400, $member_idx);
 
+            // update login log
             sql_query("UPDATE DF_device_log SET 
             sort = '" . device . "', 
             sync = 'Y', 
@@ -87,7 +88,7 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
     }
 } else {
     $response = "error";
-    $msg = "아이디 또는 비밀번호가 맞지 않습니다.";
+    $msg = "아이디 또는 비밀번호가 틀립니다.";
 }
 
 $result = array(

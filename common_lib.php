@@ -13,18 +13,17 @@ if (!defined("DAELIM_ALLOW_IS_TURE")) {
 // ==================================================================================
 function sql_connect($host, $user, $pass, $pdo = false)
 {
-    $db = DAELIM_DATABASE;
     if ($pdo == true) {
-        $dsn = 'mysql:host=' . DAELIM_HOSTNAME . '; dbname=' . DAELIM_DATABASE . '; port=' . DAELIM_PORT . '; charset=' . DAELIM_CHARSET;
+        $dsn = 'mysql:host=' . $host . '; dbname=' . DAELIM_DATABASE . '; port=' . DAELIM_PORT . '; charset=' . DAELIM_CHARSET;
         try {
-            $link = new PDO($dsn, DAELIM_USERNAME, DAELIM_PASSWORD);
+            $link = new PDO($dsn, $user, $pass);
         } catch (PDOException $Exception) {
             die("connet faile : " . $Exception->getMessage());
         }
     } else {
         if (function_exists('mysqli_connect') && DAELIM_MYSQLI_USE) {
 
-            $link = mysqli_connect($host, $user, $pass, $db);
+            $link = mysqli_connect($host, $user, $pass, DAELIM_DATABASE);
 
             if (mysqli_connect_errno()) {
                 die('Connect Error: ' . mysqli_connect_error());
@@ -33,6 +32,7 @@ function sql_connect($host, $user, $pass, $pdo = false)
             $link = mysql_connect($host, $user, $pass);
         }
     }
+
     return $link;
 }
 
@@ -51,8 +51,9 @@ function sql_set_charset($charset, $link = null)
 {
     global $daelim_festival;
 
-    if (!$link)
+    if (!$link) {
         $link = $daelim_festival['connect_db'];
+    }
 
     if (function_exists('mysqli_set_charset') && DAELIM_MYSQLI_USE)
         mysqli_set_charset($link, $charset);
@@ -172,13 +173,13 @@ function set_session($session_name, $value)
 {
     $session_name = $_SESSION[$session_name] = $value;
 }
-// ==================================================================================
-// 세션변수값 얻음
-// ==================================================================================
-function get_session($session_name)
-{
-    return isset($_SESSION[$session_name]) ? $_SESSION[$session_name] : '';
-}
+// // ==================================================================================
+// // 세션변수값 얻음
+// // ==================================================================================
+// function get_session($session_name)
+// {
+//     return isset($_SESSION[$session_name]) ? $_SESSION[$session_name] : '';
+// }
 
 // ==================================================================================
 // 쿠키변수 생성
@@ -186,17 +187,6 @@ function get_session($session_name)
 function set_cookie($cookie_name, $value, $expire)
 {
     setcookie(md5($cookie_name), base64_encode($value), time() + $expire, '/', '');
-}
-
-function get_real_client_ip()
-{
-    $real_ip = $_SERVER['REMOTE_ADDR'];
-
-    if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && preg_match('/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\z/', $_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $real_ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    }
-
-    return preg_replace('/[^0-9.]/', '', $real_ip);
 }
 
 // ==================================================================================

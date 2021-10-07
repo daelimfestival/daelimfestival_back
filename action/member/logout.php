@@ -7,7 +7,7 @@ $current_url = clean_xss_tags(htmlspecialchars(trim($json->current_url)), 1);
 $token = clean_xss_tags(htmlspecialchars(trim($json->token)), 1);
 
 if (is_token($token)) {
-    $log = sql_fetch("SELECT * FROM DF_device_log WHERE token = '{$token}';");
+    $log = getDeviceData("token", $token);
 
     if ($log) {
         $parameter = array(
