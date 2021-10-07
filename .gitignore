@@ -2,3 +2,4 @@ data/
 admin/
 phpMyAdmin/
 api_json.php
+ini.php
