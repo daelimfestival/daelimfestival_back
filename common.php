@@ -87,7 +87,6 @@ $daelim_path = daelim_path();
 define('DAELIM_SESSION_PATH', $daelim_path['path'] . '/data/session');
 
 $dbconfig_file = $daelim_path['path'] . '/data/dbconfig.php';
-$s3config_file = $daelim_path['path'] . '/data/s3config.php';
 $student_login_check_file = $daelim_path['path'] . '/data/student_login_check.php';
 
 include_once($daelim_path['path'] . '/config.php');   // 설정 파일
@@ -201,10 +200,6 @@ if (file_exists($dbconfig_file)) {
     </html>
 <?php
     exit;
-}
-
-if (file_exists($s3config_file)) {
-    include_once($s3config_file);
 }
 
 if (file_exists($student_login_check_file)) {

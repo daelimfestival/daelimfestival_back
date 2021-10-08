@@ -8,6 +8,7 @@ $current_url = clean_xss_tags(htmlspecialchars(trim($json->current_url)), 1);
 // input data
 $member_idx = clean_xss_tags(htmlspecialchars(trim($json->id)), 1);
 $password = clean_xss_tags(htmlspecialchars(trim($json->password)), 1);
+$nickname = clean_xss_tags(htmlspecialchars(trim($json->nickname)), 1);
 
 $token = "N";
 
@@ -31,11 +32,22 @@ if ($msg = count_mb_pass($password)) {
     quick_return("error", $msg);
 }
 
+if ($nickname) {
+    if ($msg = empty_mb_name($nickname)) {
+        quick_return("error", $msg);
+    }
+
+    if ($msg = valid_mb_name($nickname)) {
+        quick_return("error", $msg);
+    }
+}
+
 $parameter = array(
     "current_url" => $current_url,
     "device" => device,
     "member_idx" => $member_idx,
-    "password" => $password
+    "password" => $password,
+    "nickname" => $nickname
 );
 
 if (student_login_check_curl($member_idx, $password) === "Y") {
@@ -45,7 +57,8 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
     if (!$member) {
         sql_query("INSERT INTO DF_member SET 
         member_idx = '{$member_idx}', 
-        password = '" . get_encrypt_string($password) . "';");
+        password = '" . get_encrypt_string($password) . "', 
+        nickname = '{$nickname}';");
 
         $member = getMember($member_idx);
     }
@@ -53,8 +66,8 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
     $log = getDeviceData("member_idx", $member_idx);
 
     if ($log) {
-        // 이미 로그인 한 상태
         if ($log['sync'] == 'Y' && $log['token'] != 'N') {
+            // 이미 로그인 한 상태
             // update login log
             sql_query("UPDATE DF_device_log SET 
             sort = '" . device . "', 
@@ -77,8 +90,6 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
             login_date = '" . DAELIM_TIME_YMD . "', 
             login_time = '" . DAELIM_TIME_HIS . "' 
             WHERE member_idx = '{$log['member_idx']}' AND token = '{$log['token']}';");
-
-            $log['token'] = $token;
 
             $response = "ok";
             $msg = "success";

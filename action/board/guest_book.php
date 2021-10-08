@@ -6,14 +6,15 @@ include_once('../_common.php');
 $current_url = clean_xss_tags(htmlspecialchars(trim($json->current_url)), 1);
 $token = clean_xss_tags(htmlspecialchars(trim($json->token)), 1);
 
+// input data
+$content = clean_xss_tags(htmlspecialchars(trim($json->content)), 1);
+
 if (is_token($token)) {
     $log = getDeviceData("token", $token);
 
     if ($log) {
-        // input data
-        $content = clean_xss_tags(htmlspecialchars(trim($json->content)), 1);
-
         $member_idx = $log["member_idx"];
+
         $parameter = array(
             "current_url" => $current_url,
             "member_idx" => $member_idx,
@@ -24,7 +25,6 @@ if (is_token($token)) {
 
         sql_query("INSERT INTO DF_guest_book SET 
         member_idx = $member_idx, 
-        nickname = $nickname, 
         content = '{$content}', 
         write_date = '" . DAELIM_TIME_YMD . "', 
         write_time = '" . DAELIM_TIME_HIS . "';");
