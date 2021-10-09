@@ -23,21 +23,28 @@ if (is_token($token)) {
 
         recordAccess($current_url, $log, $parameter);
 
-        sql_query("INSERT INTO DF_guest_book SET 
+        $sql = "INSERT INTO DF_guest_book SET 
         member_idx = $member_idx, 
         content = '{$content}', 
         write_date = '" . DAELIM_TIME_YMD . "', 
-        write_time = '" . DAELIM_TIME_HIS . "';");
+        write_time = '" . DAELIM_TIME_HIS . "';";
+
+        if (!(sql_query($sql))) {
+            save_error_log(mysqli_error($daelim_festival['connect_db']), $sql);
+        }
 
         $response = "ok";
         $msg = "방명록 등록이 정상적으로 처리 되었습니다.";
+        $status_code = 200;
     } else {
         $response = "error";
         $msg = "로그아웃 되어있습니다.";
+        $status_code = 400;
     }
 } else {
     $response = "error";
     $msg = "정상적인 접근이 아닙니다.";
+    $status_code = 400;
 }
 
 $result = array(
@@ -45,4 +52,4 @@ $result = array(
     "msg" => $msg
 );
 
-json_return($result);
+json_return($result, $status_code);

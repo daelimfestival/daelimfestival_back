@@ -17,22 +17,29 @@ if (is_token($token)) {
 
         recordAccess($current_url, $log, $parameter);
 
-        sql_query("UPDATE DF_device_log SET
+        $sql = "UPDATE DF_device_log SET
         sync = 'N',
         token = 'N',
         login_date = '" . DAELIM_TIME_YMD . "', 
         login_time = '" . DAELIM_TIME_HIS . "' 
-        WHERE token = '{$token}';");
+        WHERE token = '{$token}';";
+
+        if (!(sql_query($sql))) {
+            save_error_log(mysqli_error($daelim_festival['connect_db']), $sql);
+        }
 
         $response = "ok";
         $msg = "로그아웃 되었습니다.";
+        $status_code = 200;
     } else {
         $response = "error";
         $msg = "이미 로그아웃 되어있습니다.";
+        $status_code = 400;
     }
 } else {
     $response = "error";
     $msg = "정상적인 접근이 아닙니다.";
+    $status_code = 400;
 }
 
 $result = array(
@@ -40,4 +47,4 @@ $result = array(
     "msg" => $msg
 );
 
-json_return($result);
+json_return($result, $status_code);

@@ -5,33 +5,62 @@ include_once('../_common.php');
 // base data
 $token = clean_xss_tags(htmlspecialchars(trim($json->token)), 1);
 
-$guest_book_data_sql = sql_query("SELECT DFm.nickname, DFg.content, DFg.like_num, DFg.write_date FROM DF_guest_book AS DFg LEFT JOIN DF_member AS DFm ON DFg.member_idx = DFm.member_idx WHERE DFg.is_delete = 'N';");
+// pagination
+$page = clean_xss_tags(htmlspecialchars(trim($json->page)), 1);
 
-if (is_token($token)) {
+if (is_token($token) && alive_token($token)) {
     $log = getDeviceData("token", $token);
 
     if ($log) {
         $member = getMember($log["member_idx"]);
+
+        $like_list = array();
+
+        $like_list_sql = sql_query("SELECT idx, target_idx FROM DF_like WHERE member_idx = {$log["member_idx"]}");
+
+        for ($i = 0; $res = sql_fetch_array($like_list_sql); $i++) {
+            $like_list_data = array(
+                "idx" => $res['idx']
+            );
+
+            array_push($like_list, $like_list_data);
+        }
     }
 }
 
-for ($i = 0; $res = $guest_book_data_sql->fetch_array(MYSQLI_ASSOC); $i++) {
-    if ($response != "ok") {
-        $response = "ok";
-    }
+if (!$page) {
+    $page = 1;
+}
 
-    $guest_book_data_arr[$i] = array(
+$limit = ($page - 1) * 25;
+
+$guest_book_list = array();
+
+$response = "ok";
+$status_code = 200;
+
+$sql = "SELECT COUNT(idx) AS cnt FROM DF_guest_book WHERE is_delete = 'N';";
+
+$guest_book_list_sql = sql_query("SELECT DFg.idx, DFm.nickname, DFg.content, DFg.like_num, DFg.write_date FROM DF_guest_book AS DFg INNER JOIN DF_member AS DFm ON DFg.member_idx = DFm.member_idx WHERE DFg.is_delete = 'N' ORDER BY DFg.idx DESC LIMIT $limit, 25;");
+
+for ($i = 0; $res = sql_fetch_array($guest_book_list_sql); $i++) {
+    $guest_book_list_data = array(
+        "idx" => $res['idx'],
         "nickname" => $res["nickname"],
         "content" => $res["content"],
         "like_num" => $res["like_num"],
         "write_date" => viewYMD_dot($res["write_date"])
     );
+
+    array_push($guest_book_list, $guest_book_list_data);
 }
 
 $result = array(
     "response" => $response,
     "user_nickname" => $member['nickname'],
-    "data" => $guest_book_data_arr
+    "user_like" => $like_list,
+    "total" => $total,
+    "list" => $guest_book_list
 );
 
-json_return2($result);
+json_return2($result, $status_code);

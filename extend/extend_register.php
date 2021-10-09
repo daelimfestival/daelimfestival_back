@@ -57,8 +57,8 @@ function exist_mb_id($reg_mb_id)
         return "";
     }
 
-    $sql = " SELECT count(*) AS cnt FROM member WHERE member_id = '$reg_mb_id' ";
-    $row = sql_fetch($sql);
+    $row = sql_fetch("SELECT count(*) AS cnt FROM DF_member WHERE member_idx = '$reg_mb_id';");
+
     if ($row['cnt']) {
         return "이미 사용중인 아이디 입니다.";
     } else {
@@ -94,6 +94,7 @@ function valid_mb_email($reg_mb_email)
 function exist_mb_email($reg_mb_email)
 {
     $row = sql_fetch("SELECT count(*) AS cnt FROM member WHERE id = '$reg_mb_email'");
+
     if ($row['cnt']) {
         return "이미 사용중인 E-mail 주소입니다.";
     } else {

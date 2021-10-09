@@ -15,19 +15,23 @@ if (!defined("DAELIM_ALLOW_IS_TURE")) {
 // ==================================================================================
 function getDeviceData($keyname, $keyval)
 {
+    global $daelim_festival;
+
     if ($keyname == "token") {
         //값이 있는지 검사하고 없으면 생성하고 해당 값을 반영한다.
         $row_tmp = sql_fetch("SELECT * FROM DF_device_log WHERE $keyname = '{$keyval}'");
 
-        if (!$row_tmp['idx']) {
-            $sql = "INSERT INTO DF_device_log SET
-            login_date = '" . DAELIM_TIME_YMD . "', 
-            login_time = '" . DAELIM_TIME_HIS . "';";
+        // if (!$row_tmp['idx']) {
+        //     $sql = "INSERT INTO DF_device_log SET
+        //     login_date = '" . DAELIM_TIME_YMD . "', 
+        //     login_time = '" . DAELIM_TIME_HIS . "';";
 
-            sql_query($sql, true);
+        //     if(!(sql_query($sql))) {
+        //         save_error_log(mysqli_error($daelim_festival['connect_db']), $sql);
+        //     }
 
-            $row_tmp = sql_fetch("SELECT * FROM DF_device_log WHERE $keyname = '{$keyval}'");
-        }
+        //     $row_tmp = sql_fetch("SELECT * FROM DF_device_log WHERE $keyname = '{$keyval}'");
+        // }
     } else {
         $row_tmp = sql_fetch("SELECT * FROM DF_device_log WHERE $keyname = '{$keyval}'");
 
@@ -38,7 +42,11 @@ function getDeviceData($keyname, $keyval)
             login_date = '" . DAELIM_TIME_YMD . "', 
             login_time = '" . DAELIM_TIME_HIS . "';";
 
-            sql_query($sql, true);
+            if(!(sql_query($sql))) {
+                $after_action = "DELETE FROM DF_member WHERE member_idx = '{$keyval}'";
+
+                save_error_log(mysqli_error($daelim_festival['connect_db']), $sql, $after_action);
+            }
 
             $row_tmp = sql_fetch("SELECT * FROM DF_device_log WHERE $keyname = '{$keyval}'");
         }
@@ -56,6 +64,8 @@ function recordAccess($current_url, $deviceinfo, $parameter = array())
         return false;
     }
 
+    global $daelim_festival;
+
     $base_filename = basename($_SERVER['PHP_SELF']);
 
     $parameter_json = json_encode($parameter, JSON_UNESCAPED_UNICODE);
@@ -70,9 +80,35 @@ function recordAccess($current_url, $deviceinfo, $parameter = array())
     timeaccess = '{$timeaccess}',
     ip = '" . ip . "';";
 
-    sql_query($sql, true);
+    if (!(sql_query($sql))) {
+        save_error_log(mysqli_error($daelim_festival['connect_db']), $sql);
+    }
 
     return true;
+}
+
+// ==================================================================================
+// 에러로그 기록 함수
+// ==================================================================================
+function save_error_log($title, $content, $after_action = null)
+{
+    $title = htmlspecialchars($title);
+
+    $content = htmlspecialchars($content);
+
+    sql_query('INSERT INTO DF_error_log SET title = "' . $title . '", content = "' . $content . '";');
+
+    if (is_array($after_action)) {
+        for ($i=0; $i < count($after_action); $i++) { 
+            sql_query($after_action[$i]);
+        }
+    } else {
+        sql_query($after_action);
+    }
+
+
+
+    quick_return("fail", "Connection Fail");
 }
 
 // ==================================================================================
@@ -99,7 +135,7 @@ function srcExtractor($html)
 // ==================================================================================
 // API 넘기기
 // ==================================================================================
-function json_return($array)
+function json_return($array, $status_code = 500)
 {
     $json = "";
 
@@ -109,11 +145,12 @@ function json_return($array)
 
     header('Content-Type: application/json; charset=utf-8');
     header('Content-Length: ' . mb_strlen($json));
+    header(http[$status_code]);
 
     exit($json);
 }
 
-function json_return2($array)
+function json_return2($array, $status_code = 500)
 {
     $json = "";
 
@@ -123,6 +160,7 @@ function json_return2($array)
 
     header('Content-Type: application/json; charset=utf-8');
     header('Content-Length: ' . strlen($json));
+    header(http[$status_code]);
 
     exit($json);
 }
@@ -140,30 +178,29 @@ function quick_return($response, $msg)
     json_return($array);
 }
 
-function save_Error_log($title, $content)
-{
-    $title = htmlspecialchars($title);
-
-    $content = htmlspecialchars($content);
-    
-    $sql = "INSERT INTO error_log SET title = '{$title}', content = '{$content}'";
-    sql_query($sql);
-}
-
+// ==================================================================================
+// 해당 컬럼 값으로 등록된 사용자 정보 가져오는 함수
+// ==================================================================================
 function getMember($id)
 {
-    $info = sql_fetch("SELECT * FROM DF_member WHERE member_idx = '{$id}'");
+    $info = sql_fetch("SELECT * FROM DF_member WHERE member_idx = '{$id}';");
 
     return $info;
 }
 
+// ==================================================================================
+// 관리자인지 확인하는 함수
+// ==================================================================================
 function checkAdmin($id)
 {
-    $info = sql_fetch("SELECT is_admin FROM DF_member WHERE member_idx = '{$id}'");
+    $info = sql_fetch("SELECT is_admin FROM DF_member WHERE member_idx = '{$id}';");
 
     return $info;
 }
 
+// ==================================================================================
+// 설정값을 가져오는 함수
+// ==================================================================================
 function getConfig()
 {
     $config = sql_fetch("SELECT * FROM config WHERE 1");
@@ -481,7 +518,7 @@ function embed_youtube($link)
     $youtube_user = strstr($youtube_link, 'v=');
 
     $youtube_final = str_replace("v=", "", $youtube_user);
-    
+
     $youtube_result = mb_substr($youtube_final, 0, 11, 'utf-8');
 
     return "https://www.youtube.com/v/$youtube_result?version=3&autoplay=1";
@@ -495,6 +532,22 @@ function is_token($token)
     $chk = false;
 
     if (text_startsWith($token, "DF")) {
+        $chk = true;
+    }
+
+    return $chk;
+}
+
+// ==================================================================================
+// 토큰 생명 확인 함수
+// ==================================================================================
+function alive_token($token)
+{
+    $chk = false;
+
+    $alive_chk = sql_fetch("SELECT sync, token FROM DF_device_log WHERE token = '{$token}';");
+
+    if ($alive_chk['sync'] == 'Y' && $alive_chk['token'] != 'N') {
         $chk = true;
     }
 
