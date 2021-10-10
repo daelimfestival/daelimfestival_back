@@ -81,7 +81,6 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
 
             $response = "ok";
             $msg = "이미 로그인하셨습니다.";
-            $status_code = 200;
             $token = $log['token'];
 
             if (!(sql_query($sql))) {
@@ -111,7 +110,6 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
 
             $response = "ok";
             $msg = "success";
-            $status_code = 200;
 
             recordAccess($current_url, $log, $parameter);
         }
@@ -119,7 +117,6 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
 } else {
     $response = "error";
     $msg = "아이디 또는 비밀번호가 틀립니다.";
-    $status_code = 400;
 }
 
 $result = array(
@@ -128,4 +125,4 @@ $result = array(
     "token" => $token
 );
 
-json_return($result, $status_code);
+json_return($result);

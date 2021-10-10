@@ -30,16 +30,13 @@ if (is_token($token)) {
 
         $response = "ok";
         $msg = "로그아웃 되었습니다.";
-        $status_code = 200;
     } else {
         $response = "error";
         $msg = "이미 로그아웃 되어있습니다.";
-        $status_code = 400;
     }
 } else {
     $response = "error";
     $msg = "정상적인 접근이 아닙니다.";
-    $status_code = 400;
 }
 
 $result = array(
@@ -47,4 +44,4 @@ $result = array(
     "msg" => $msg
 );
 
-json_return($result, $status_code);
+json_return($result);

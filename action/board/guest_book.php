@@ -35,16 +35,13 @@ if (is_token($token)) {
 
         $response = "ok";
         $msg = "방명록 등록이 정상적으로 처리 되었습니다.";
-        $status_code = 200;
     } else {
         $response = "error";
         $msg = "로그아웃 되어있습니다.";
-        $status_code = 400;
     }
 } else {
     $response = "error";
     $msg = "정상적인 접근이 아닙니다.";
-    $status_code = 400;
 }
 
 $result = array(
@@ -52,4 +49,4 @@ $result = array(
     "msg" => $msg
 );
 
-json_return($result, $status_code);
+json_return($result);

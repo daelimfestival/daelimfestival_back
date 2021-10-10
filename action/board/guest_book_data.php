@@ -37,7 +37,6 @@ $limit = ($page - 1) * 25;
 $guest_book_list = array();
 
 $response = "ok";
-$status_code = 200;
 
 $sql = "SELECT COUNT(idx) AS cnt FROM DF_guest_book WHERE is_delete = 'N';";
 
@@ -63,4 +62,4 @@ $result = array(
     "list" => $guest_book_list
 );
 
-json_return2($result, $status_code);
+json_return2($result);
