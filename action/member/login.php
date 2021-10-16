@@ -32,16 +32,6 @@ if ($msg = count_mb_pass($password)) {
     quick_return("error", $msg);
 }
 
-if ($nickname) {
-    if ($msg = empty_mb_name($nickname)) {
-        quick_return("error", $msg);
-    }
-
-    if ($msg = valid_mb_name($nickname)) {
-        quick_return("error", $msg);
-    }
-}
-
 $parameter = array(
     "current_url" => $current_url,
     "device" => device,
@@ -55,6 +45,14 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
     $member = getMember($member_idx);
 
     if (!$member) {
+        if ($msg = empty_mb_name($nickname)) {
+            quick_return("error", $msg);
+        }
+    
+        if ($msg = valid_mb_name($nickname)) {
+            quick_return("error", $msg);
+        }
+        
         $sql = "INSERT INTO DF_member SET 
         member_idx = '{$member_idx}', 
         password = '" . get_encrypt_string($password) . "', 
