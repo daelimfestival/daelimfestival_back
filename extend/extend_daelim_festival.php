@@ -68,11 +68,14 @@ function recordAccess($current_url, $deviceinfo, $parameter = array())
 
     $base_filename = basename($_SERVER['PHP_SELF']);
 
+    $member_idx = $parameter['member_idx'];
+
     $parameter_json = json_encode($parameter, JSON_UNESCAPED_UNICODE);
 
     $timeaccess = time();
 
     $sql = "INSERT INTO DF_device_access SET 
+    member_idx = '{$member_idx}',
     sort = '" . device . "',
     currenturl = '{$current_url}',
     request_page = '{$base_filename}',
