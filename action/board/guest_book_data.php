@@ -17,6 +17,7 @@ $limit = ($page - 1) * 25;
 $guest_book_list = array();
 
 $response = "ok";
+$msg = "리스트 출력 완료";
 
 $sql = "SELECT COUNT(idx) AS cnt FROM DF_guest_book WHERE is_delete = 'N';";
 
@@ -36,6 +37,7 @@ $total = sql_fetch("SELECT COUNT(idx) AS cnt FROM DF_guest_book WHERE is_delete 
 
 $result = array(
     "response" => $response,
+    "msg" => $msg,
     "total" => $total,
     "list" => $guest_book_list
 );

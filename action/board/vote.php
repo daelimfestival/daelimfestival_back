@@ -27,8 +27,16 @@ if (is_token($token)) {
             recordAccess($current_url, $log, $parameter);
 
             $sql = "INSERT INTO DF_vote SET
-        target_idx = '{$vote}',
-        member_idx  = '{$log["member_idx"]}';";
+            target_idx = '{$vote}',
+            member_idx  = '{$log["member_idx"]}';";
+
+            if (!(sql_query($sql))) {
+                save_error_log(mysqli_error($daelim_festival['connect_db']), $sql);
+            }
+
+            $sql = "UPDATE DF_member SET
+            stamp = stamp + 1
+            WHERE member_idx = '{$log["member_idx"]}';";
 
             if (!(sql_query($sql))) {
                 save_error_log(mysqli_error($daelim_festival['connect_db']), $sql);

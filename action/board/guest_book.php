@@ -9,6 +9,12 @@ $token = clean_xss_tags(htmlspecialchars(trim($json->token)), 1);
 // input data
 $content = clean_xss_tags(htmlspecialchars(trim($json->content)), 1);
 
+if (!empty_mb($content)) {
+    quick_return("error", "내용을 입력해주세요.");
+} else if ((mb_strlen($content, "UTF-8") > 100) && (strlen($content) > 100)) {
+    quick_return("error", "최대 100글자까지 입력이 가능합니다.");
+}
+
 if (is_token($token)) {
     $log = getDeviceData("token", $token);
 
@@ -22,6 +28,18 @@ if (is_token($token)) {
         );
 
         recordAccess($current_url, $log, $parameter);
+
+        $cnt_guest_book = sql_fetch("SELECT COUNT(idx) AS cnt FROM DF_guest_book WHERE member_idx = '{$member_idx}';")['cnt'];
+
+        if ($cnt_guest_book === "0") {
+            $sql = "UPDATE DF_member SET
+            stamp = stamp + 1
+            WHERE member_idx = '{$member_idx}';";
+
+            if (!(sql_query($sql))) {
+                save_error_log(mysqli_error($daelim_festival['connect_db']), $sql);
+            }
+        }
 
         $sql = "INSERT INTO DF_guest_book SET 
         member_idx = $member_idx, 
