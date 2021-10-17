@@ -40,12 +40,11 @@ $response = "ok";
 
 $sql = "SELECT COUNT(idx) AS cnt FROM DF_guest_book WHERE is_delete = 'N';";
 
-$guest_book_list_sql = sql_query("SELECT DFg.idx, DFm.nickname, DFg.content, DFg.like_num, DFg.write_date FROM DF_guest_book AS DFg INNER JOIN DF_member AS DFm ON DFg.member_idx = DFm.member_idx WHERE DFg.is_delete = 'N' ORDER BY DFg.idx DESC LIMIT $limit, 25;");
+$guest_book_list_sql = sql_query("SELECT DFg.idx, DFg.content, DFg.like_num, DFg.write_date FROM DF_guest_book AS DFg INNER JOIN DF_member AS DFm ON DFg.member_idx = DFm.member_idx WHERE DFg.is_delete = 'N' ORDER BY DFg.idx DESC LIMIT $limit, 25;");
 
 for ($i = 0; $res = sql_fetch_array($guest_book_list_sql); $i++) {
     $guest_book_list_data = array(
         "idx" => $res['idx'],
-        "nickname" => $res["nickname"],
         "content" => $res["content"],
         "like_num" => $res["like_num"],
         "write_date" => viewYMD_dot($res["write_date"])
@@ -54,9 +53,10 @@ for ($i = 0; $res = sql_fetch_array($guest_book_list_sql); $i++) {
     array_push($guest_book_list, $guest_book_list_data);
 }
 
+$total = sql_fetch("SELECT COUNT(idx) AS cnt FROM DF_guest_book WHERE is_delete = 'N';")['cnt'];
+
 $result = array(
     "response" => $response,
-    "user_nickname" => $member['nickname'],
     "user_like" => $like_list,
     "total" => $total,
     "list" => $guest_book_list

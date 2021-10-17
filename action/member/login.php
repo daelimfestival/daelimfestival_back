@@ -8,7 +8,6 @@ $current_url = clean_xss_tags(htmlspecialchars(trim($json->current_url)), 1);
 // input data
 $member_idx = clean_xss_tags(htmlspecialchars(trim($json->id)), 1);
 $password = clean_xss_tags(htmlspecialchars(trim($json->password)), 1);
-$nickname = clean_xss_tags(htmlspecialchars(trim($json->nickname)), 1);
 
 $token = "N";
 
@@ -36,8 +35,7 @@ $parameter = array(
     "current_url" => $current_url,
     "device" => device,
     "member_idx" => $member_idx,
-    "password" => $password,
-    "nickname" => $nickname
+    "password" => $password
 );
 
 if (student_login_check_curl($member_idx, $password) === "Y") {
@@ -45,18 +43,10 @@ if (student_login_check_curl($member_idx, $password) === "Y") {
     $member = getMember($member_idx);
 
     if (!$member) {
-        if ($msg = empty_mb_name($nickname)) {
-            quick_return("error", $msg);
-        }
-    
-        if ($msg = valid_mb_name($nickname)) {
-            quick_return("error", $msg);
-        }
         
         $sql = "INSERT INTO DF_member SET 
         member_idx = '{$member_idx}', 
-        password = '" . get_encrypt_string($password) . "', 
-        nickname = '{$nickname}';";
+        password = '" . get_encrypt_string($password) . "';";
 
         if (!(sql_query($sql))) {
             save_error_log(mysqli_error($daelim_festival['connect_db']), $sql);
